@@ -464,7 +464,7 @@ for (bshcode in unique(dfw_trim$metadata$PSA)) {
   
   # SIMPER ####
   tic(paste0(unique(bsh_data$metadata$PSA)[1], " run SIMPER"))
-  untransformed
+  # untransformed
   fit.simper <- vegan::simper(bsh_data$abundance, group=bsh_data$metadata$year,
                               permutations = perm)
   # # transformed
