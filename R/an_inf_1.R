@@ -366,7 +366,7 @@ for (bshcode in unique(dfw_trim$metadata$PSA)) {
   saveRDS(fit.glm, file = paste0("data_out/mvabund.inf.",unique(bsh_data$metadata$PSA)[1],".rdat"))
   saveRDS(fit.glm.summary,file=paste0("data_out/mvabund.inf.",unique(bsh_data$metadata$PSA)[1],".summary.rdat"))
   fit.glm.out <- mvabund::anova.manyglm(fit.glm,p.uni = "adjusted", test="LR",show.time="all")
-  saveRDS(fit.glm.out, file = paste0("outputs/mvabund.inf.",unique(bsh_data$metadata$PSA)[1],".pw.rdat"))
+  saveRDS(fit.glm.out, file = paste0("data_out/mvabund.inf.",unique(bsh_data$metadata$PSA)[1],".pw.rdat"))
   
   m2tmp1 <- t(as.data.frame(fit.glm.out$uni.p))[,2]
   names(m2tmp1) <- names(bsh_data$abundance)
@@ -458,7 +458,7 @@ for (bshcode in unique(dfw_trim$metadata$PSA)) {
                                 permutations = perm)
   # # transformed
   # fit.adonis2 <- vegan::adonis2(log(bsh_dataord+1) ~ bsh_data$Year,permutations = perm)
-  saveRDS(fit.adonis2, file = paste0("outputs/adonis2.inf.",
+  saveRDS(fit.adonis2, file = paste0("data_out/adonis2.inf.",
                                      unique(bsh_data$BSH_CODE)[1],".rdat"))
   toc(log=TRUE)
   
@@ -470,7 +470,7 @@ for (bshcode in unique(dfw_trim$metadata$PSA)) {
   # # transformed
   # fit.simper <- vegan::simper(log(bsh_dataord+1), group=bsh_data$Year,
   #                             permutations = perm)
-  saveRDS(fit.simper, file = paste0("outputs/simper.inf.",
+  saveRDS(fit.simper, file = paste0("data_out/simper.inf.",
                                     unique(bsh_data$BSH_CODE)[1],".rdat"))
   toc(log = TRUE)
   flush.console()
@@ -479,27 +479,3 @@ for (bshcode in unique(dfw_trim$metadata$PSA)) {
 
 toc(log=TRUE)
 toc(log=TRUE)
-
-###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ################ FROM HERE ################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  ###########################################################################
-  
-
