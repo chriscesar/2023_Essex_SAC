@@ -88,6 +88,8 @@ df_long <- bind_rows(
   df_long_2017 %>% mutate(year = 2017),
   df_long_2023 %>% mutate(year = 2023)
 )
+
+#write.csv(df_long, file="data_out/inf.data.all.csv",row.names = FALSE)
 rm(df0_2012,df0_2017,df0_2023,id_columns,
    df_long_2012,df_long_2017,df_long_2023)
 
