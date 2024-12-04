@@ -45,3 +45,29 @@ model <- manyglm(response ~ stations + offset(offsets), family = "poisson")
 
 # Step 4: Summary of the model
 summary(model);plot(model)
+
+##################
+# Load necessary libraries
+library(mvabund)
+
+# Simulate data
+set.seed(123)
+data <- data.frame(
+  station = rep(1:3, each = 6),  # 3 stations
+  year = rep(2010:2011, each = 3, times = 3),  # 2 years
+  replicate = rep(1:3, times = 6),  # 3 replicates
+  species1 = rnbinom(18, mu = 5, size = 1),
+  species2 = rnbinom(18, mu = 3, size = 1)
+)
+
+# Calculate offset as log of replicate counts
+data$offset <- log(3)  # Log of number of replicates, uniform here for simplicity
+
+# Convert species data to mvabund format
+abund_data <- mvabund(data[, c("species1", "species2")])
+
+# Fit the manyglm model with an offset
+fit <- manyglm(abund_data ~ data$year + data$station, offset = data$offset, family = "negative.binomial")
+
+# Summary of results
+summary(fit)
