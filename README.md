@@ -11,5 +11,5 @@ Processing &amp; analysis of data  from 2023 survey of Essex Estuaries SAC
 * within each biotope, do PSA values/abundances differ by year?
 
 ## Things to note
-* MVABUND graph outputs display 'significant' taxa between years at the alpha=0.1 level
-* replicate samples were assessed using an offset term
+* ~~MVABUND graph outputs display 'significant' taxa between years at the alpha=0.1 level~~
+* ~~replicate samples were assessed using an offset term~~
