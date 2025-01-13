@@ -4,7 +4,7 @@
 # Set up ####
 ## load packages ####
 ld_pkgs <- c("tidyverse", "vegan","lmerTest","rstatix", "mvabund","tictoc",
-             "MASS","ggtext","ggpmisc", "gllvm")
+             "MASS","ggtext","ggpmisc", "gllvm","MASS")
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
@@ -41,6 +41,10 @@ mds_scores$Waterbody <- dfw$metadata$Waterbody
 mds_scores$Year <- dfw$metadata$year
 mds_scores$Site <- dfw$metadata$Site_ID
 mds_scores$PSA <- dfw$metadata$PSA
+dfw$metadata$Site_USE <- ifelse(dfw$metadata$Site_Match == "N/A",
+                                dfw$metadata$Site_ID,
+                                dfw$metadata$Site_Match)
+
 
 ### extract species scores and groups
 spp_scores <- as.data.frame(scores(ord, "species"))  #Using the scores function from vegan to extract the species scores and convert to a data.frame
@@ -113,6 +117,7 @@ mds_scores$Waterbody <- tmp_met$Waterbody
 mds_scores$Year <- tmp_met$year
 mds_scores$Site <- tmp_met$Site_ID
 mds_scores$PSA <- tmp_met$PSA
+mds_scores$Site_USE <- tmp_met$Site_USE
 
 ### extract species scores and groups
 spp_scores <- as.data.frame(scores(tmpord, "species"))  #Using the scores function from vegan to extract the species scores and convert to a data.frame
@@ -135,7 +140,7 @@ mds_scores %>%
             col="darkgrey",
             size=4, show.legend = FALSE, alpha = 0.5)+
   geom_text(aes(
-    label=Site,
+    label=Site_USE,
     colour=as.factor(Year)
   ),
   size=7,
@@ -187,6 +192,7 @@ mds_scores$Waterbody <- tmp_met$Waterbody
 mds_scores$Year <- tmp_met$year
 mds_scores$Site <- tmp_met$Site_ID
 mds_scores$PSA <- tmp_met$PSA
+mds_scores$Site_USE <- tmp_met$Site_USE
 
 ### extract species scores and groups
 spp_scores <- as.data.frame(scores(tmpord, "species"))  #Using the scores function from vegan to extract the species scores and convert to a data.frame
@@ -209,7 +215,7 @@ mds_scores %>%
             col="darkgrey",
             size=4, show.legend = FALSE, alpha = 0.5)+
   geom_text(aes(
-    label=Site,
+    label=Site_USE,
     colour=as.factor(Year)
   ),
   size=7,
@@ -261,6 +267,7 @@ mds_scores$Waterbody <- tmp_met$Waterbody
 mds_scores$Year <- tmp_met$year
 mds_scores$Site <- tmp_met$Site_ID
 mds_scores$PSA <- tmp_met$PSA
+mds_scores$Site_USE <- tmp_met$Site_USE
 
 ### extract species scores and groups
 spp_scores <- as.data.frame(scores(tmpord, "species"))  #Using the scores function from vegan to extract the species scores and convert to a data.frame
@@ -283,7 +290,7 @@ mds_scores %>%
             col="darkgrey",
             size=4, show.legend = FALSE, alpha = 0.5)+
   geom_text(aes(
-    label=Site,
+    label=Site_USE,
     colour=as.factor(Year)
   ),
   size=7,
@@ -659,3 +666,71 @@ for (bshcode in unique(dfw_trim$metadata$PSA)) {
   
 }
 toc(log = TRUE)
+rm(fit.adonis2,fit.anosim,fit.glm,fit.glm.out,fit.glm.summary,fit.simper,
+   BSH_codes,bsh_data,m2tx,m2txl,pl2,pl3,bshcode,kp,kptx,m2tmp1,df_long,dfw_trim)
+
+# UNIVARIATE MODELS ####
+## calculate taxon richness & Abundance values ####
+S <- vegan::specnumber(dfw$abundance)
+
+## convert abundance values of -999 to 0 for faunal density calculation
+dfw$abundance_noP <- dfw$abundance_raw
+dfw$abundance_noP[dfw$abundance_noP <0] <- 0
+N <- rowSums(dfw$abundance_noP)
+
+## TAXON RICHNESS (S) ####
+## A5.2
+tmpA5.2 <- dfw$metadata$PSA == "A5.2"
+dfa52 <- data.frame(S = S[tmpA5.2],
+                    year = as.factor(dfw$metadata$year[tmpA5.2]))
+dfa52$year <- relevel(dfa52$year, ref = "2023")
+summary(fitSA52 <- glm.nb(S ~ year,data = dfa52))
+saveRDS(fitSA52, file = "data_out/glmnb_S_A52.Rdat")
+visreg::visreg(fitSA52)
+
+## A5.3
+tmpA5.3 <- dfw$metadata$PSA == "A5.3"
+dfa53 <- data.frame(S = S[tmpA5.3],
+                    year = as.factor(dfw$metadata$year[tmpA5.3]))
+dfa53$year <- relevel(dfa53$year, ref = "2023")
+summary(fitSA53 <- glm.nb(S ~ year,data = dfa53))
+saveRDS(fitSA53, file = "data_out/glmnb_S_A53.Rdat")
+visreg::visreg(fitSA53)
+
+## A5.4
+tmpA5.4 <- dfw$metadata$PSA == "A5.4"
+dfa54 <- data.frame(S = S[tmpA5.4],
+                    year = as.factor(dfw$metadata$year[tmpA5.4]))
+dfa54$year <- relevel(dfa54$year, ref = "2023")
+summary(fitSA54 <- glm.nb(S ~ year,data = dfa54))
+saveRDS(fitSA54, file = "data_out/glmnb_S_A54.Rdat")
+visreg::visreg(fitSA54)
+
+## TAXON Abundance (N) ####
+## A5.2
+tmpA5.2 <- dfw$metadata$PSA == "A5.2"
+dfa52 <- data.frame(N = N[tmpA5.2],
+                    year = as.factor(dfw$metadata$year[tmpA5.2]))
+dfa52$year <- relevel(dfa52$year, ref = "2023")
+summary(fitNA52 <- glm.nb(N ~ year,data = dfa52))
+saveRDS(fitNA52, file = "data_out/glmnb_N_A52.Rdat")
+visreg::visreg(fitNA52)
+
+## A5.3
+tmpA5.3 <- dfw$metadata$PSA == "A5.3"
+dfa53 <- data.frame(N = N[tmpA5.3],
+                    year = as.factor(dfw$metadata$year[tmpA5.3]))
+dfa53$year <- relevel(dfa53$year, ref = "2023")
+summary(fitNA53 <- glm.nb(N ~ year,data = dfa53))
+saveRDS(fitNA53, file = "data_out/glmnb_N_A53.Rdat")
+visreg::visreg(fitNA53)
+
+## A5.4
+tmpA5.4 <- dfw$metadata$PSA == "A5.4"
+dfa54 <- data.frame(N = N[tmpA5.4],
+                    year = as.factor(dfw$metadata$year[tmpA5.4]))
+dfa54$year <- relevel(dfa54$year, ref = "2023")
+summary(fitNA54 <- glm.nb(N ~ year,data = dfa54))
+saveRDS(fitNA54, file = "data_out/glmnb_N_A54.Rdat")
+visreg::visreg(fitNA54)
+
