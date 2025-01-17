@@ -89,7 +89,46 @@ mds_scores %>%
     axis.title = element_text(face=2)
     )
 dev.off()
+
+pdf("figs/inf_mds_all_byWB.pdf",
+    # width=14,height = 14
+    width=12,height = 12
+)
+mds_scores %>% 
+  mutate(.,lb = paste0(Waterbody,PSA)) -> mds_scores# %>% 
+
+ggplot(mds_scores,aes(x=NMDS1, y=NMDS2))+
+  geom_text(data=spp_scores,
+            aes(
+              x=NMDS1,
+              y= NMDS2,
+              label=species_sh
+            ),
+            col="darkgrey",
+            size=4, show.legend = FALSE, alpha = 0.5)+
+  scale_shape_manual(values=c(21,21,22,22,23,23,24,24,24,24,25,25,25)) +
+  geom_point(aes(shape=lb,fill=lb),size=8)+
+  scale_fill_manual(
+  values = cbPalette[c(1,2,1,2,1,2,3,4,1,2,3,1,2)]
+  ) +
+  geom_text_npc(aes(npcx = .99, npcy = .99,
+                    label=paste("Stress = ",
+                                round(ord$stress, 3))))+
+  labs(colour = "Year")+
+  coord_fixed()+
+  #scale_shape_manual(values=c(21:25))+
+  theme(
+    legend.title = element_blank(),
+    legend.text = element_text(face=2),
+    # legend.position = c(.99, 0.01),
+    legend.justification = c(1, 0),
+    # legend.direction = "horizontal",
+    legend.box = "vertical",
+    axis.title = element_text(face=2)
+  )
+dev.off()
 rm(ord)
+
 toc(log=TRUE)
 
 # MDS plots by BSH####
