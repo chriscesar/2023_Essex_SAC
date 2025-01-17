@@ -9,6 +9,9 @@ Processing &amp; analysis of data  from 2023 survey of Essex Estuaries SAC
 
 ## TO DO list
 * within each biotope, do PSA values/abundances differ by year?
+* Currently splitting data by BSH and comparing univariate and multivariate data by Year.
+  * Waterbody ID is potentially a confounding factor. e.g. are A5.2 assemblages in Colne likely to differ from A5.2 assemblages in Blackwater?
+  * investigate previous report (2017) to see what investigations were carried out
 
 ## Things to note
 * ~~MVABUND graph outputs display 'significant' taxa between years at the alpha=0.1 level~~
