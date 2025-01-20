@@ -51,10 +51,12 @@ spp_scores <- as.data.frame(scores(ord, "species"))  #Using the scores function 
 spp_scores$species <- rownames(spp_scores)  # create a column of species, from the rownames of species.scores
 spp_scores$species_sh <- make.cepnames(spp_scores$species)
 
-pdf("figs/inf_mds_all.pdf",
-    # width=14,height = 14
-    width=12,height = 12
-    )
+# pdf("figs/inf_mds_all.pdf",
+#     # width=14,height = 14
+#     width=12,height = 12
+#     )
+png("figs/inf_mds_all.png",
+    width=12*ppi, height=6*ppi, res=ppi)
 mds_scores %>% 
   ggplot(.,aes(x=NMDS1, y=NMDS2))+
   geom_text(data=spp_scores,
@@ -90,10 +92,12 @@ mds_scores %>%
     )
 dev.off()
 
-pdf("figs/inf_mds_all_byWB.pdf",
-    # width=14,height = 14
-    width=12,height = 12
-)
+png("figs/inf_mds_all_byWB.png",
+    width=18*ppi, height=9*ppi, res=ppi)
+# pdf("figs/inf_mds_all_byWB.pdf",
+#     # width=14,height = 14
+#     width=12,height = 12
+# )
 mds_scores %>% 
   mutate(.,lb = paste0(Waterbody,PSA)) -> mds_scores# %>% 
 
@@ -164,10 +168,12 @@ spp_scores$species <- rownames(spp_scores)  # create a column of species, from t
 spp_scores$species_sh <- make.cepnames(spp_scores$species)
 
 ### plot ####
-pdf("figs/inf_mds_A5.2.pdf",
-    # width=14,height = 14
-    width=12,height = 12
-)
+##############
+png("figs/inf_mds_A5.2.png",width=12*ppi, height=6*ppi, res=ppi)
+# pdf("figs/inf_mds_A5.2.pdf",
+#     # width=14,height = 14
+#     width=12,height = 12
+# )
 mds_scores %>% 
   ggplot(.,aes(x=NMDS1, y=NMDS2))+
   geom_text(data=spp_scores,
@@ -239,10 +245,11 @@ spp_scores$species <- rownames(spp_scores)  # create a column of species, from t
 spp_scores$species_sh <- make.cepnames(spp_scores$species)
 
 ### plot ####
-pdf("figs/inf_mds_A5.3.pdf",
-    # width=14,height = 14
-    width=12,height = 12
-)
+# pdf("figs/inf_mds_A5.3.pdf",
+#     # width=14,height = 14
+#     width=12,height = 12
+# )
+png("figs/inf_mds_A5.3.png",width=12*ppi, height=6*ppi, res=ppi)
 mds_scores %>% 
   ggplot(.,aes(x=NMDS1, y=NMDS2))+
   geom_text(data=spp_scores,
@@ -314,10 +321,11 @@ spp_scores$species <- rownames(spp_scores)  # create a column of species, from t
 spp_scores$species_sh <- make.cepnames(spp_scores$species)
 
 ### plot ####
-pdf("figs/inf_mds_A5.4.pdf",
-    # width=14,height = 14
-    width=12,height = 12
-)
+# pdf("figs/inf_mds_A5.4.pdf",
+#     # width=14,height = 14
+#     width=12,height = 12
+# )
+png("figs/inf_mds_A5.4.png",width=12*ppi, height=6*ppi, res=ppi)
 mds_scores %>% 
   ggplot(.,aes(x=NMDS1, y=NMDS2))+
   geom_text(data=spp_scores,
@@ -658,10 +666,15 @@ for (bshcode in unique(dfw_trim$metadata$PSA)) {
       plot.title = element_text(face="bold",size=14)
     ) -> pl3
   
-  ggsave(filename = paste0("figs/infauna_",unique(bsh_data$metadata$PSA)[1],"_relabund.pdf"),
-         width = 14, height = 6, units="in",plot=pl2)
-  ggsave(filename = paste0("figs/infauna_",unique(bsh_data$metadata$PSA)[1],"_relabund_ver2.pdf"),
-         width = 14, height = 6, units="in",plot=pl3)
+  # ggsave(filename = paste0("figs/infauna_",unique(bsh_data$metadata$PSA)[1],"_relabund.pdf"),
+  #        width = 14, height = 6, units="in",plot=pl2)
+  #png("figs/inf_mds_A5.4.png",width=12*ppi, height=6*ppi, res=ppi)
+  ggsave(filename = paste0("figs/infauna_",unique(bsh_data$metadata$PSA)[1],"_relabund.png"),
+         width=12*ppi, height=6*ppi, res=ppi,plot=pl2)
+  # ggsave(filename = paste0("figs/infauna_",unique(bsh_data$metadata$PSA)[1],"_relabund_ver2.pdf"),
+  #        width = 14, height = 6, units="in",plot=pl3)
+  ggsave(filename = paste0("figs/infauna_",unique(bsh_data$metadata$PSA)[1],"_relabund_ver2.png"),
+         width=12*ppi, height=6*ppi, res=ppi,,plot=pl3)
   toc()
   
   ### ANOSIM ####
