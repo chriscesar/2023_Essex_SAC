@@ -5,7 +5,7 @@
 # Set up ####
 ## load packages ####
 ld_pkgs <- c("tidyverse", "vegan","lmerTest","rstatix", "mvabund","tictoc",
-             "MASS","ggtext","ggpmisc", "gllvm","MASS")
+             "MASS","ggtext","ggpmisc", "gllvm","MASS","lme4")
 vapply(ld_pkgs, library, logical(1L),
        character.only = TRUE, logical.return = TRUE)
 rm(ld_pkgs)
@@ -22,7 +22,7 @@ dfw$abundance_raw <- dfw$abundance
 
 ## convert abundance values of -999 to 1
 dfw$abundance[dfw$abundance <0] <- 1
-toc(log = TRUE)
+toc(log = TRUE);toc(log = TRUE)
 
 # split by WB
 # BW_tmp <- dfw$metadata$Waterbody == "Blackwater"
@@ -721,61 +721,100 @@ dfw$abundance_noP <- dfw$abundance_raw
 dfw$abundance_noP[dfw$abundance_noP <0] <- 0
 N <- rowSums(dfw$abundance_noP)
 
+## create temporary DB
+dftmp <- data.frame(Waterbody = dfw$metadata$Waterbody)
+dftmp$S <- S;rm(S)
+dftmp$N <- N;rm(N)
+dftmp$year <- as.factor(dfw$metadata$year)
+dftmp$PSA <- as.factor(dfw$metadata$PSA)
+dftmp$year <- relevel(dftmp$year, ref="2023")
+
+
 ## TAXON RICHNESS (S) ####
-## A5.2
-tmpA5.2 <- dfw$metadata$PSA == "A5.2"
-dfa52 <- data.frame(S = S[tmpA5.2],
-                    year = as.factor(dfw$metadata$year[tmpA5.2]))
-dfa52$year <- relevel(dfa52$year, ref = "2023")
-summary(fitSA52 <- glm.nb(S ~ year,data = dfa52))
-saveRDS(fitSA52, file = "data_out/glmnb_S_A52.Rdat")
+### A5.2 ####
+dftmpA5.2 <- dftmp %>% filter(PSA == "A5.2")
+
+summary(fitSA52 <- glm.nb(S ~ year,data = dftmpA5.2))
+saveRDS(fitSA52, file = "data_out/glmnb_A52_S.Rdat")
 visreg::visreg(fitSA52)
 
-## A5.3
-tmpA5.3 <- dfw$metadata$PSA == "A5.3"
-dfa53 <- data.frame(S = S[tmpA5.3],
-                    year = as.factor(dfw$metadata$year[tmpA5.3]))
-dfa53$year <- relevel(dfa53$year, ref = "2023")
-summary(fitSA53 <- glm.nb(S ~ year,data = dfa53))
-saveRDS(fitSA53, file = "data_out/glmnb_S_A53.Rdat")
+summary(fitSA52.WB <- lme4::glmer.nb(S ~ year + (1|Waterbody),
+                                     data=dftmpA5.2))
+saveRDS(fitSA52.WB, file="data_out/glmnb.WB_A52_S.Rdat")
+capture.output(summary(fitSA52.WB), file="data_out/glmnb.WB_A52_S.txt")
+visreg::visreg(fitSA52.WB)
+rm(dftmpA5.2,fitSA52,fitSA52.WB)
+
+### A5.3  ####
+dftmpA5.3 <- dftmp %>% filter(PSA == "A5.3")
+
+summary(fitSA53 <- glm.nb(S ~ year,data = dftmpA5.3))
+saveRDS(fitSA53, file = "data_out/glmnb_A53_S.Rdat")
 visreg::visreg(fitSA53)
 
-## A5.4
-tmpA5.4 <- dfw$metadata$PSA == "A5.4"
-dfa54 <- data.frame(S = S[tmpA5.4],
-                    year = as.factor(dfw$metadata$year[tmpA5.4]))
-dfa54$year <- relevel(dfa54$year, ref = "2023")
-summary(fitSA54 <- glm.nb(S ~ year,data = dfa54))
-saveRDS(fitSA54, file = "data_out/glmnb_S_A54.Rdat")
+summary(fitSA53.WB <- lme4::glmer.nb(S ~ year + (1|Waterbody),
+                                     data=dftmpA5.3))
+saveRDS(fitSA53.WB, file="data_out/glmnb.WB_A53_S.Rdat")
+capture.output(summary(fitSA53.WB), file="data_out/glmnb.WB_A53_S.txt")
+visreg::visreg(fitSA53.WB)
+rm(dftmpA5.3,fitSA53,fitSA53.WB)
+
+### A5.4 ####
+dftmpA5.4 <- dftmp %>% filter(PSA == "A5.4")
+
+summary(fitSA54 <- glm.nb(S ~ year,data = dftmpA5.4))
+saveRDS(fitSA54, file = "data_out/glmnb_A54_S.Rdat")
 visreg::visreg(fitSA54)
 
+summary(fitSA54.WB <- lme4::glmer.nb(S ~ year + (1|Waterbody),
+                                     data=dftmpA5.4))
+saveRDS(fitSA54.WB, file="data_out/glmnb.WB_A54_S.Rdat")
+capture.output(summary(fitSA54.WB), file="data_out/glmnb.WB_A54_S.txt")
+visreg::visreg(fitSA54.WB)
+rm(dftmpA5.4,fitSA54,fitSA54.WB)
+
 ## TAXON Abundance (N) ####
-## A5.2
-tmpA5.2 <- dfw$metadata$PSA == "A5.2"
-dfa52 <- data.frame(N = N[tmpA5.2],
-                    year = as.factor(dfw$metadata$year[tmpA5.2]))
-dfa52$year <- relevel(dfa52$year, ref = "2023")
-summary(fitNA52 <- glm.nb(N ~ year,data = dfa52))
-saveRDS(fitNA52, file = "data_out/glmnb_N_A52.Rdat")
+### A5.2 ####
+dftmpA5.2 <- dftmp %>% filter(PSA == "A5.2")
+
+summary(fitNA52 <- glm.nb((N) ~ year,data = dftmpA5.2))
+saveRDS(fitNA52, file = "data_out/glmnb_A52_N.Rdat")
 visreg::visreg(fitNA52)
 
-## A5.3
-tmpA5.3 <- dfw$metadata$PSA == "A5.3"
-dfa53 <- data.frame(N = N[tmpA5.3],
-                    year = as.factor(dfw$metadata$year[tmpA5.3]))
-dfa53$year <- relevel(dfa53$year, ref = "2023")
-summary(fitNA53 <- glm.nb(N ~ year,data = dfa53))
-saveRDS(fitNA53, file = "data_out/glmnb_N_A53.Rdat")
+summary(fitNA52.WB <- lmer(log(N) ~ year + (1|Waterbody),
+                           data=dftmpA5.2))
+saveRDS(fitNA52.WB, file="data_out/glmnb.WB_A52_N.Rdat")
+capture.output(summary(fitNA52.WB), file="data_out/glmnb.WB_A52_N.txt")
+visreg::visreg(fitNA52.WB)
+rm(dftmpA5.2,fitNA52,fitNA52.WB)
+
+### A5.3  ####
+dftmpA5.3 <- dftmp %>% filter(PSA == "A5.3")
+
+summary(fitNA53 <- glm.nb(N ~ year,data = dftmpA5.3))
+saveRDS(fitNA53, file = "data_out/glmnb_A53_N.Rdat")
 visreg::visreg(fitNA53)
 
-## A5.4
-tmpA5.4 <- dfw$metadata$PSA == "A5.4"
-dfa54 <- data.frame(N = N[tmpA5.4],
-                    year = as.factor(dfw$metadata$year[tmpA5.4]))
-dfa54$year <- relevel(dfa54$year, ref = "2023")
-summary(fitNA54 <- glm.nb(N ~ year,data = dfa54))
-saveRDS(fitNA54, file = "data_out/glmnb_N_A54.Rdat")
+summary(fitNA53.WB <- lmer(log(N) ~ year + (1|Waterbody),
+                           data=dftmpA5.3))
+saveRDS(fitNA53.WB, file="data_out/glmnb.WB_A53_N.Rdat")
+capture.output(summary(fitNA53.WB), file="data_out/glmnb.WB_A53_N.txt")
+visreg::visreg(fitNA53.WB)
+rm(dftmpA5.3,fitNA53,fitNA53.WB)
+
+### A5.4 ####
+dftmpA5.4 <- dftmp %>% filter(PSA == "A5.4")
+
+summary(fitNA54 <- glm.nb(N ~ year,data = dftmpA5.4))
+saveRDS(fitNA54, file = "data_out/glmnb_A54_N.Rdat")
 visreg::visreg(fitNA54)
+
+summary(fitNA54.WB <- lmer(log(N) ~ year + (1|Waterbody),
+                           data=dftmpA5.4))
+saveRDS(fitNA54.WB, file="data_out/glmnb.WB_A54_N.Rdat")
+capture.output(summary(fitNA54.WB), file="data_out/glmnb.WB_A54_N.txt")
+visreg::visreg(fitNA54.WB)
+rm(dftmpA5.4,fitNA54,fitNA54.WB)
 
 # MVABUNDS BY WB_BSH ####
 tic("MVABUNDS BY WB_BSH")
