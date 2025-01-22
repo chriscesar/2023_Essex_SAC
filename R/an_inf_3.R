@@ -65,12 +65,16 @@ summary_list <- list()
 for (waterbody in waterbody_levels) {
   for (psa in psa_levels) {
     # Filter the data for the current combination ####
+    WB <- waterbody
     trim_data2 <- trim_data %>%
       filter(!(Waterbody=="Blackwater" & PSA == "A5.3")) %>% 
       filter(!(Waterbody=="Colne" & PSA == "A5.4"))
     subset_data <- trim_data2 %>%
       filter(Waterbody == waterbody, PSA == psa)
       # filter(Waterbody == "Crouch", PSA == "A5.3")
+    
+    ## define 'long' name for BSH
+    bsh_nm <- BSH_codes$BSH_name[BSH_codes$BSH_code==psa]
     
     # remove 'empty columns'
     subset_data %>%
@@ -90,7 +94,7 @@ for (waterbody in waterbody_levels) {
     mds_result <- metaMDS(abundance_matrix, distance = "bray", trymax = 500, try = 200)
     
     # Save the result in the list
-    mds_results[[paste(waterbody, psa, sep = "_")]] <- list(
+    mds_results[[paste(psa, waterbody, sep = "_")]] <- list(
       Waterbody = waterbody,
       PSA = psa,
       mds = mds_result
@@ -108,7 +112,7 @@ for (waterbody in waterbody_levels) {
     spp_scores$species_sh <- vegan::make.cepnames(spp_scores$species)
 
     ## plot ####
-    png(file=paste0("figs/",waterbody,"_",psa,".png"),
+    png(file=paste0("figs/",psa,"_",waterbody,".png"),
         width=12*ppi, height=6*ppi, res=ppi)
     
     mds_scores %>%
@@ -133,7 +137,7 @@ for (waterbody in waterbody_levels) {
                                     round(mds_scores$stress[1], 3))))+
       labs(
         title = "MDS ordination of benthic infauna",
-        subtitle = paste0(waterbody," ",psa," broadscale habitat"),
+        subtitle = paste0(WB, ": ", psa," ",bsh_nm," Broadscale habitat"),
         colour = "Year")+
       coord_fixed()+
       scale_colour_manual(
@@ -165,7 +169,7 @@ for (waterbody in waterbody_levels) {
                               offset = log(subset_mvab$reps),
                               family = "negative.binomial")
     # Save the result in the list
-    mvabund_results[[paste(waterbody, psa, sep = "_")]] <- list(
+    mvabund_results[[paste(psa,waterbody, sep = "_")]] <- list(
       Waterbody = waterbody,
       PSA = psa,
       mvab = mvabund_result
@@ -211,20 +215,20 @@ toc(log=TRUE)
 tic("Anova on mvabund models")
 # create holding pen
 anova_out <- list()
-# for(key in names(mvabund_results)){
-#   # Extract the mvabund_result object
-#   mvab_result <- mvabund_results[[key]]$mvab
-#   fit.glm.out <- mvabund::anova.manyglm(mvab_result,p.uni = "adjusted", test="LR",show.time="all")
-#   m2tmp1 <- t(as.data.frame(fit.glm.out$uni.p))[,2]
-# 
-#   nsig <- length(names(m2tmp1[m2tmp1<0.1]))
-#   print(paste0(nsig," 'significant' taxa"))
-# 
-#   ##save anova outputs
-#   anova_out[[key]] <- fit.glm.out
-#   }
-# 
-# saveRDS(anova_out, file="data_out/mvabund_anova_out_WB_BSH.Rdat")
+for(key in names(mvabund_results)){
+  # Extract the mvabund_result object
+  mvab_result <- mvabund_results[[key]]$mvab
+  fit.glm.out <- mvabund::anova.manyglm(mvab_result,p.uni = "adjusted", test="LR",show.time="all")
+  m2tmp1 <- t(as.data.frame(fit.glm.out$uni.p))[,2]
+
+  nsig <- length(names(m2tmp1[m2tmp1<0.1]))
+  print(paste0(nsig," 'significant' taxa"))
+
+  ##save anova outputs
+  anova_out[[key]] <- fit.glm.out
+  }
+
+saveRDS(anova_out, file="data_out/mvabund_anova_out_WB_BSH.Rdat")
 anova_out <- readRDS("data_out/mvabund_anova_out_WB_BSH.Rdat")
 toc(log=TRUE)
 
@@ -232,8 +236,18 @@ toc(log=TRUE)
 tic("generate plots of significant taxa")
 
 for(i in names(anova_out)){
-  WB <-  stringr::str_split(i,"_",simplify = TRUE)[1]
-  psa <- stringr::str_split(i,"_",simplify = TRUE)[2]
+  nsig <- length(names(m2tmp1[m2tmp1<0.1]))
+  print(paste0(i,": ",nsig," 'significant' taxa"))
+}
+
+for(i in names(anova_out)){
+  # i <- "A5.4_Blackwater"
+  WB <-  stringr::str_split(i,"_",simplify = TRUE)[2]
+  psa <- stringr::str_split(i,"_",simplify = TRUE)[1]
+  
+  ## define 'long' name for BSH
+  bsh_nm <- BSH_codes$BSH_name[BSH_codes$BSH_code==psa]
+  
   x <- anova_out[[i]] ## anova outputs
   df_tmp <- trim_data %>% filter(.,Waterbody==WB & PSA==psa)
   m2tmp1 <- t(as.data.frame(x$uni.p))[,2]
@@ -263,7 +277,7 @@ for(i in names(anova_out)){
                 height = 0.05,size=1, alpha = 0.5, colour = "grey") +
     geom_jitter(height = 0.05,size=3, alpha = 0.9) +
     scale_shape_manual(values = c(21:24))+
-    labs(title = paste0(WB, " ", psa," BSH"),
+    labs(title = paste0(WB, ": ", psa," ",bsh_nm," Broadscale habitat"),
          x="log(Taxon abundance (n+1))",
          caption=paste0("Displayed taxa are the ",paste0(length(names(m2tmp1[m2tmp1<0.1])))," taxa which showed differences in abundances between years at alpha = 0.1.\n",
                         "Taxon abundances across all years are presented in each facet, with abundances for a given year displayed by larger, coloured icons."))+
