@@ -65,6 +65,7 @@ summary_list <- list()
 for (waterbody in waterbody_levels) {
   for (psa in psa_levels) {
     # Filter the data for the current combination ####
+    # waterbody <- "OuterBlackwater";psa <- "A5.3" #test
     WB <- waterbody
     trim_data2 <- trim_data %>%
       filter(!(Waterbody=="Blackwater" & PSA == "A5.3")) %>% 
@@ -106,6 +107,7 @@ for (waterbody in waterbody_levels) {
     mds_scores$WB <- waterbody
     mds_scores$year <- subset_data$year
     mds_scores$stress <- mds_result$stress
+    mds_scores$Site_ID <- subset_data$Site_ID
     
     spp_scores <- as_tibble(as.data.frame(scores(mds_result,"species")))
     spp_scores$species <- colnames(subset_data)[-c(1:4)]
@@ -126,10 +128,10 @@ for (waterbody in waterbody_levels) {
                 col="darkgrey",
                 size=4, show.legend = FALSE, alpha = 0.5)+
       geom_text(aes(
-        label=year,
+        label=Site_ID,
         colour=as.factor(year)
       ),
-      show.legend = FALSE,
+      #show.legend = FALSE,
       size=7,
       fontface=2)+
       geom_text_npc(aes(npcx = .99, npcy = .99,
@@ -241,7 +243,7 @@ for(i in names(anova_out)){
 }
 
 for(i in names(anova_out)){
-  # i <- "A5.4_Blackwater"
+  # i <- "A5.3_Blackwater"
   WB <-  stringr::str_split(i,"_",simplify = TRUE)[2]
   psa <- stringr::str_split(i,"_",simplify = TRUE)[1]
   
@@ -286,15 +288,17 @@ for(i in names(anova_out)){
     scale_y_discrete(limits=rev)+
     theme(
       legend.position = "none",
+      plot.caption = element_text(size = 12),
       axis.title.y = element_blank(),
-      axis.text.y = element_text(size=12,face="italic"),
+      axis.text.y = element_text(size=14,face="italic"),
       axis.title.x = element_text(face="bold"),
-      strip.text.x = element_text(face="bold",size=12),
+      strip.text.x = element_text(face="bold",size=14),
       plot.title.position = "plot",
       plot.title = element_text(face="bold",size=14)
       ) -> pl3
   ggsave(filename = paste0("figs/infauna_",i,"_relabund_WB_BSH.png"),
-           width=12, height=6,plot=pl3);rm(pl3)
+           # width=12, height=6,plot=pl3);rm(pl3)
+         width=12, height=6,plot=pl3);rm(pl3)
   rm(m2tx,kptx,m2txl)
   }
 }
