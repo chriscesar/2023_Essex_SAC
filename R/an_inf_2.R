@@ -729,7 +729,6 @@ dftmp$year <- as.factor(dfw$metadata$year)
 dftmp$PSA <- as.factor(dfw$metadata$PSA)
 dftmp$year <- relevel(dftmp$year, ref="2023")
 
-
 ## TAXON RICHNESS (S) ####
 ### A5.2 ####
 dftmpA5.2 <- dftmp %>% filter(PSA == "A5.2")
